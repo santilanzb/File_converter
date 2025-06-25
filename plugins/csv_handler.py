@@ -9,8 +9,9 @@ import csv
 from typing import List, Dict, Any
 
 # Assuming a project structure where these imports are valid.
-# from ..core.exceptions import FileProcessingError
-# from .base_handler import FileHandler
+from ..core.exceptions import FileProcessingError
+from .base_handler import FileHandler
+
 # For standalone testing, we'll define dummy classes.
 class FileProcessingError(Exception):
     def __init__(self, path, msg):
