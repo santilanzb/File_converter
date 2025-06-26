@@ -1,0 +1,2 @@
+[console_scripts]
+fconv = file_converter.main:main
