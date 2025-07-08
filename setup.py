@@ -1,35 +1,44 @@
 from setuptools import setup, find_packages
 
-"""
-This file makes the project installable.
-By installing it, Python's environment will always know where to find the
-'core' and 'plugins' modules, resolving import errors permanently.
-"""
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
+with open("requirements.txt", "r", encoding="utf-8") as fh:
+    requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
 
 setup(
-    # The name of your package
     name='file_converter',
-    
-    # The version
-    version='0.1.0',
-    
-    # This command automatically finds all packages (directories with __init__.py)
-    # We specify the 'where' argument to be the current directory.
+    version='1.0.0',
+    author='File Converter Team',
+    author_email='contact@example.com',
+    description='A versatile, extensible file converter supporting multiple formats',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url='https://github.com/yourusername/file-converter',
     packages=find_packages(where='.'),
-    
-    # This tells setuptools that the root of the package is the current directory.
-    # This is a key change to help resolve the module path.
     package_dir={'': '.'},
-    
-    # This is the magic part: it creates a command-line script for us.
-    # We're telling it to create a command called 'fconv' that runs the
-    # 'main' function inside our 'file_converter/main.py' script.
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Topic :: Office/Business',
+        'Topic :: Text Processing',
+        'Topic :: Utilities',
+    ],
+    python_requires='>=3.8',
+    install_requires=requirements,
     entry_points={
         'console_scripts': [
-            'fconv = file_converter.main:main',
+            'fconv=main:main',
         ],
     },
-
-    # Setting zip_safe to False can help with compatibility in some environments.
+    keywords='file converter, format conversion, csv, json, pdf, docx, pptx',
     zip_safe=False,
 )

@@ -11,16 +11,25 @@ import os
 import pkgutil
 import inspect
 from typing import Dict, Type
-from ..core.exceptions import UnsupportedFormatError
-from .base_handler import FileHandler
 
-# For standalone testing, we'll define dummy classes and a mock package structure.
-class UnsupportedFormatError(Exception):
-    def __init__(self, format, message="Unsupported format"):
-        super().__init__(f"{message}: {format}")
+# Try to import from project structure, fall back to dummy classes
+try:
+    from ..core.exceptions import UnsupportedFormatError
+    from .base_handler import FileHandler
+except ImportError:
+    try:
+        # Try absolute imports for installed package
+        from core.exceptions import UnsupportedFormatError
+        from plugins.base_handler import FileHandler
+    except ImportError:
+        # For standalone testing, we'll define dummy classes.
+        class UnsupportedFormatError(Exception):
+            def __init__(self, format, message="Unsupported format"):
+                super().__init__(f"{message}: {format}")
 
-class FileHandler:
-    pass
+        class FileHandler:
+            def read(self, file_path: str): pass
+            def write(self, file_path: str, data): pass
 
 # ---- Handler Factory Implementation ----
 
@@ -40,17 +49,25 @@ def _discover_handlers():
     package_name = os.path.basename(package_path)
 
     for _, module_name, _ in pkgutil.iter_modules([package_path]):
-        # Import the module dynamically
-        module = __import__(f"{package_name}.{module_name}", fromlist=["*"])
+        try:
+            # Import the module dynamically
+            module = __import__(f"{package_name}.{module_name}", fromlist=["*"])
 
-        # Look for classes within the imported module
-        for name, obj in inspect.getmembers(module, inspect.isclass):
-            # Check if it's a subclass of FileHandler but not FileHandler itself
-            if issubclass(obj, FileHandler) and obj is not FileHandler:
-                # Infer the format from the class name (e.g., "CsvHandler" -> "csv")
-                format_name = name.replace("Handler", "").lower()
-                _HANDLERS[format_name] = obj
-                print(f"Discovered and registered handler for '{format_name}'")
+            # Look for classes within the imported module
+            for name, obj in inspect.getmembers(module, inspect.isclass):
+                # Check if it's a subclass of FileHandler but not FileHandler itself
+                try:
+                    if issubclass(obj, FileHandler) and obj is not FileHandler:
+                        # Infer the format from the class name (e.g., "CsvHandler" - "csv")
+                        format_name = name.replace("Handler", "").lower()
+                        _HANDLERS[format_name] = obj
+                        # print(f"Registered handler for '{format_name}': {name}")  # Commented for cleaner output
+                except Exception:
+                    # Silently skip classes that can't be checked
+                    pass
+        except Exception:
+            # Silently skip modules that can't be imported
+            pass
 
 
 def get_handler(file_extension: str) -> FileHandler:

@@ -7,28 +7,42 @@ and manages the data flow between them.
 """
 
 import os
-from ..plugins.handler_factory import get_handler
-from .exceptions import ConversionError, UnsupportedFormatError
+# Try both relative and absolute imports to support different use cases
+try:
+    from ..plugins.handler_factory import get_handler
+    from .exceptions import ConversionError, UnsupportedFormatError, FileProcessingError
+except ImportError:
+    try:
+        # Try absolute imports for installed package
+        from plugins.handler_factory import get_handler
+        from core.exceptions import ConversionError, UnsupportedFormatError, FileProcessingError
+    except ImportError:
+        # For standalone testing, we'll define dummy versions.
+        class UnsupportedFormatError(Exception): pass
+        class ConversionError(Exception):
+            def __init__(self, from_format=None, to_format=None, message="An error occurred during conversion."):
+                self.from_format = from_format
+                self.to_format = to_format
+                self.message = f"{message} (from {from_format} to {to_format})"
+                super().__init__(self.message)
+        class FileProcessingError(Exception):
+            def __init__(self, path, msg):
+                super().__init__(f"{msg}: {path}")
 
-# For standalone testing, we'll define dummy versions.
-class UnsupportedFormatError(Exception): pass
-class ConversionError(Exception): pass
-class FileProcessingError(Exception): pass
+        class FileHandler:
+            def read(self, file_path):
+                print(f"Reading from {file_path} using {type(self).__name__}")
+                return [{"id": 1, "data": "sample"}, {"id": 2, "data": "demo"}]
 
-class FileHandler:
-    def read(self, file_path):
-        print(f"Reading from {file_path} using {type(self).__name__}")
-        return [{"id": 1, "data": "sample"}, {"id": 2, "data": "demo"}]
+            def write(self, file_path, data):
+                print(f"Writing to {file_path} using {type(self).__name__}")
+                print(f"Data received: {data}")
 
-    def write(self, file_path, data):
-        print(f"Writing to {file_path} using {type(self).__name__}")
-        print(f"Data received: {data}")
-
-def get_handler(ext):
-    if ext in ['csv', 'json']:
-        # In a real scenario, this returns CsvHandler() or JsonHandler()
-        return FileHandler()
-    raise UnsupportedFormatError(f"No handler for {ext}")
+        def get_handler(ext):
+            if ext in ['csv', 'json']:
+                # In a real scenario, this returns CsvHandler() or JsonHandler()
+                return FileHandler()
+            raise UnsupportedFormatError(f"No handler for {ext}")
 
 
 def convert_file(input_path: str, output_path: str):
