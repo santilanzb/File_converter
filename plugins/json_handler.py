@@ -7,17 +7,25 @@ and writing of data in JavaScript Object Notation format.
 
 import json
 from typing import List, Dict, Any
-from ..core.exceptions import FileProcessingError
-from .base_handler import FileHandler
 
-# For standalone testing, we'll define dummy classes.
-class FileProcessingError(Exception):
-    def __init__(self, path, msg):
-        super().__init__(f"{msg}: {path}")
+# Try to import from project structure, fall back to dummy classes
+try:
+    from ..core.exceptions import FileProcessingError
+    from .base_handler import FileHandler
+except ImportError:
+    try:
+        # Try absolute imports for installed package
+        from core.exceptions import FileProcessingError
+        from plugins.base_handler import FileHandler
+    except ImportError:
+        # For standalone testing, we'll define dummy classes.
+        class FileProcessingError(Exception):
+            def __init__(self, path, msg):
+                super().__init__(f"{msg}: {path}")
 
-class FileHandler:
-    def read(self, file_path: str) -> List[Dict[str, Any]]: pass
-    def write(self, file_path: str, data: List[Dict[str, Any]]): pass
+        class FileHandler:
+            def read(self, file_path: str) -> List[Dict[str, Any]]: pass
+            def write(self, file_path: str, data: List[Dict[str, Any]]): pass
 
 
 class JsonHandler(FileHandler):
