@@ -14,7 +14,7 @@ setup(
     description='A versatile, extensible file converter supporting multiple formats',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url='https://github.com/yourusername/file-converter',
+    url='https://github.com/santilanzb/File_converter',
     packages=find_packages(where='.'),
     package_dir={'': '.'},
     classifiers=[
