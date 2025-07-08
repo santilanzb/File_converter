@@ -66,8 +66,15 @@ class MobiHandler(FileHandler):
                     temp_epub_path = tmp_epub.name
                 
                 # Try using ebook-convert command from Calibre
+                ebook_convert_cmd = 'ebook-convert'
+                # Check if Calibre is installed in the typical Windows location
+                import os
+                calibre_path = r'C:\Program Files\Calibre2\ebook-convert.exe'
+                if os.path.exists(calibre_path):
+                    ebook_convert_cmd = calibre_path
+                
                 result = subprocess.run(
-                    ['ebook-convert', file_path, temp_epub_path],
+                    [ebook_convert_cmd, file_path, temp_epub_path],
                     capture_output=True,
                     text=True,
                     timeout=30
@@ -297,8 +304,15 @@ class MobiHandler(FileHandler):
                 epub.write_epub(temp_epub_path, book)
                 
                 # Convert EPUB to MOBI using ebook-convert
+                ebook_convert_cmd = 'ebook-convert'
+                # Check if Calibre is installed in the typical Windows location
+                import os
+                calibre_path = r'C:\Program Files\Calibre2\ebook-convert.exe'
+                if os.path.exists(calibre_path):
+                    ebook_convert_cmd = calibre_path
+                
                 result = subprocess.run(
-                    ['ebook-convert', temp_epub_path, file_path],
+                    [ebook_convert_cmd, temp_epub_path, file_path],
                     capture_output=True,
                     text=True,
                     timeout=60
